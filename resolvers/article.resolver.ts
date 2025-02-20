@@ -4,10 +4,38 @@ import Caterory from "../models/category.mode";
 export const resolversArticle = {
     Query: {
 
-        getListArticle: async () => {
-            const articles = await Article.find({
+        getListArticle: async (_, args) => {
+            const { sortKey, sortValue, currentPage, limitItem, filterKey, filterValue, keyword } = args;
+
+            const find = {
                 deleted: false,
-            })
+            }
+
+            // Filter
+            if (filterKey && filterValue){
+                find[filterKey] = filterValue
+            }
+
+            // Search
+            if (keyword){
+                const regex = new RegExp(keyword, 'i');
+                find["title"] = regex;
+            }
+            
+            // Sort
+            const sort = {}
+            if (sortKey && sortValue){
+                sort[sortKey] = sortValue;
+            }
+
+            // Pagination
+            const skip = (currentPage - 1) * limitItem;
+
+            const articles = await Article
+            .find(find)
+            .sort(sort).limit(limitItem)
+            .limit(limitItem)
+            .skip(skip)
             return articles
         },
 
