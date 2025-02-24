@@ -6,6 +6,7 @@ import { connect } from "./config/database"
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs } from "./typeDefs/index.typeDefs";
 import { resolvers } from "./resolvers/index.resolvers";
+import { requireAuth } from "./middlewares/auth.middleware";
 
 connect()
 
@@ -18,14 +19,19 @@ const startServer = async () => {
     
     const apolloServer = new ApolloServer({
         typeDefs: typeDefs,
-        resolvers: resolvers
+        resolvers: resolvers,
+        context: (context) => {
+            return context;
+        }
     })
+
+    app.use('/nguyendangcuong', requireAuth)
 
     await apolloServer.start();
 
     apolloServer.applyMiddleware({
         app: app as any,
-        path: '/nguyendangcuong'
+        path: '/nguyendangcuong',
     })
 
     app.listen(port, () => {
